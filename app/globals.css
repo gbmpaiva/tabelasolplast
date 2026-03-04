@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --green-primary: #2d6a4f;
-  --green-light: #d8f3dc;
-  --green-mid: #b7e4c7;
-  --green-accent: #40916c;
-  --green-dark: #1b4332;
+  --green-primary: #3d7fe2;
+  --green-light: #d8e6f3;
+  --green-mid: #b7d2e4;
+  --green-accent: #84b6f0;
+  --green-dark: #091f9e;
   --row-even: #f0faf3;
   --row-odd: #ffffff;
 }
@@ -43,7 +43,7 @@ body {
 }
 
 .table-header {
-  background: linear-gradient(135deg, #2d6a4f, #40916c);
+  background: linear-gradient(135deg, #2d366a, #405c91);
   color: white;
   font-size: 11px;
   font-weight: 600;
@@ -90,7 +90,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #40916c, #2d6a4f);
+ background: linear-gradient(135deg, #2d366a, #405c91);
   color: white;
   border: none;
   padding: 7px 16px;
@@ -105,8 +105,8 @@ body {
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #2d6a4f, #1b4332);
-  box-shadow: 0 2px 8px rgba(45, 106, 79, 0.3);
+  background: linear-gradient(135deg, #2d366a, #405c91);
+  box-shadow: 0 2px 8px rgba(55, 75, 185, 0.3);
 }
 
 .btn-primary:disabled {
@@ -126,7 +126,7 @@ body {
 
 .input-field:focus {
   border-color: var(--green-accent);
-  box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.15);
+  box-shadow: 0 0 0 2px rgba(69, 64, 145, 0.15);
 }
 
 .select-field {
@@ -142,7 +142,7 @@ body {
 
 .select-field:focus {
   border-color: var(--green-accent);
-  box-shadow: 0 0 0 2px rgba(64, 145, 108, 0.15);
+  box-shadow: 0 0 0 2px rgba(64, 90, 145, 0.15);
 }
 
 .drag-handle {
@@ -174,7 +174,7 @@ body {
 .loading-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid #c3ddc9;
+  border: 2px solid #637be6;
   border-top-color: var(--green-accent);
   border-radius: 50%;
   animation: spin 0.6s linear infinite;
