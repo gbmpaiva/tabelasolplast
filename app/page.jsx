@@ -4,6 +4,24 @@ import { useState, useEffect, useRef } from 'react'
 
 const STORAGE_KEY = 'tabela_precos_products'
 
+/* ── TOTVS Color Tokens ── */
+const C = {
+  blueDark:    '#003366',
+  blueMid:     '#0077B3',
+  bluePrimary: '#0096D7',
+  blueAccent:  '#29ABE2',
+  blueSurface: '#E6F4FB',
+  blueSurf2:   '#CCE9F6',
+  blueBorder:  '#A8D4EF',
+  borderLight: '#D0E8F5',
+  bgPage:      '#F0F6FA',
+  rowEven:     '#F0F8FC',
+  textPrimary: '#1A2B3C',
+  textMuted:   '#8AA8BC',
+  danger:      '#E53935',
+  white:       '#FFFFFF',
+}
+
 /* ── helpers ── */
 function trimStr(s) {
   return typeof s === 'string' ? s.trim() : String(s ?? '')
@@ -30,7 +48,7 @@ function getDeadlineLabel(d) {
 function SavedBadge({ saved }) {
   if (!saved) return null
   return (
-    <span style={{ fontSize: 11, color: '#40916c', fontWeight: 600, marginLeft: 8 }}>
+    <span style={{ fontSize: 11, color: C.blueAccent, fontWeight: 600, marginLeft: 8 }}>
       ✓ Salvo
     </span>
   )
@@ -44,11 +62,11 @@ function CheckboxList({ title, items, selected, onToggle, loading, error, keyFie
       {loading && (
         <div style={{ padding: '20px', textAlign: 'center' }}>
           <span className="loading-spinner" />
-          <span style={{ marginLeft: 8, color: '#6b9e7a', fontSize: 12 }}>Carregando...</span>
+          <span style={{ marginLeft: 8, color: C.blueAccent, fontSize: 12 }}>Carregando...</span>
         </div>
       )}
       {error && !loading && (
-        <div style={{ padding: '12px', color: '#cc3300', fontSize: 12, background: '#fff5f5', margin: 8, borderRadius: 4 }}>
+        <div style={{ padding: '12px', color: C.danger, fontSize: 12, background: '#fff5f5', margin: 8, borderRadius: 4 }}>
           ⚠ {error}
         </div>
       )}
@@ -74,13 +92,13 @@ function CheckboxList({ title, items, selected, onToggle, loading, error, keyFie
                     display: 'grid',
                     gridTemplateColumns: '1fr auto auto',
                     gap: '8px',
-                    background: isSelected ? '#d8f3dc' : idx % 2 === 0 ? '#f6fbf7' : '#fff',
+                    background: isSelected ? C.blueSurf2 : idx % 2 === 0 ? C.rowEven : C.white,
                     borderRadius: 0,
                   }}
                 >
-                  <span style={{ fontSize: 12, color: '#2d2d2d' }}>{label}</span>
+                  <span style={{ fontSize: 12, color: C.textPrimary }}>{label}</span>
                   {extraField && (
-                    <span style={{ fontSize: 11, color: '#40916c', fontWeight: 600, textAlign: 'right', minWidth: 60 }}>
+                    <span style={{ fontSize: 11, color: C.blueMid, fontWeight: 600, textAlign: 'right', minWidth: 60 }}>
                       {typeof extra === 'number' ? extra.toFixed(4) : extra}
                     </span>
                   )}
@@ -88,13 +106,13 @@ function CheckboxList({ title, items, selected, onToggle, loading, error, keyFie
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => onToggle(key)}
-                    style={{ accentColor: '#40916c', width: 14, height: 14, cursor: 'pointer', margin: 'auto' }}
+                    style={{ accentColor: C.bluePrimary, width: 14, height: 14, cursor: 'pointer', margin: 'auto' }}
                   />
                 </label>
               )
             })}
           </div>
-          <div style={{ padding: '8px 12px', borderTop: '1px solid #e8f2ea', fontSize: 11, color: '#6b9e7a' }}>
+          <div style={{ padding: '8px 12px', borderTop: `1px solid ${C.borderLight}`, fontSize: 11, color: C.blueAccent }}>
             {selected.length} selecionado{selected.length !== 1 ? 's' : ''} de {items.length}
           </div>
         </>
@@ -137,10 +155,10 @@ function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div style={{ background: '#fff', borderRadius: 10, width: '92%', maxWidth: 820, boxShadow: '0 8px 40px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
-        <div style={{ background: 'linear-gradient(135deg, #2d6a4f, #40916c)', padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>🔍 Pesquisar Produto</span>
-          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontSize: 13 }}>✕</button>
+      <div style={{ background: C.white, borderRadius: 10, width: '92%', maxWidth: 820, boxShadow: '0 8px 40px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+        <div style={{ background: `linear-gradient(135deg, ${C.blueDark}, ${C.blueMid})`, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ color: C.white, fontWeight: 700, fontSize: 14 }}>🔍 Pesquisar Produto</span>
+          <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: C.white, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontSize: 13 }}>✕</button>
         </div>
         <div style={{ padding: '14px 18px' }}>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -151,8 +169,8 @@ function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
             </button>
           </div>
         </div>
-        <div style={{ maxHeight: 380, overflow: 'auto', borderTop: '1px solid #e8f2ea' }}>
-          {loading && (<div style={{ textAlign: 'center', padding: 32 }}><span className="loading-spinner" /><p style={{ color: '#6b9e7a', fontSize: 12, marginTop: 8 }}>Buscando...</p></div>)}
+        <div style={{ maxHeight: 380, overflow: 'auto', borderTop: `1px solid ${C.borderLight}` }}>
+          {loading && (<div style={{ textAlign: 'center', padding: 32 }}><span className="loading-spinner" /><p style={{ color: C.blueAccent, fontSize: 12, marginTop: 8 }}>Buscando...</p></div>)}
           {!loading && searched && results.length === 0 && (<div className="empty-state">Nenhum produto encontrado para "<strong>{query}</strong>"</div>)}
           {!loading && results.length > 0 && (
             <table className="product-table" style={{ minWidth: 'unset' }}>
@@ -169,8 +187,8 @@ function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
                   const cod = trimStr(p.B1_COD)
                   const added = alreadyAdded.includes(cod)
                   return (
-                    <tr key={cod} style={{ background: i % 2 === 0 ? '#f6fbf7' : '#fff' }}>
-                      <td style={{ padding: '7px 12px', fontSize: 12, fontWeight: 600, color: '#2d6a4f' }}>{cod}</td>
+                    <tr key={cod} style={{ background: i % 2 === 0 ? C.rowEven : C.white }}>
+                      <td style={{ padding: '7px 12px', fontSize: 12, fontWeight: 600, color: C.blueMid }}>{cod}</td>
                       <td style={{ padding: '7px 12px', fontSize: 12, maxWidth: 320 }}>{trimStr(p.B1_DESC)}</td>
                       <td style={{ padding: '7px 12px', fontSize: 12, color: '#666' }}>{trimStr(p.B1_TIPO) || '-'}</td>
                       <td style={{ padding: '7px 12px', textAlign: 'center' }}>
@@ -246,106 +264,151 @@ function ProductBlock({ product, conditions, deadlines, regionFactor }) {
 }
 
 /* ── PrintPreview ── */
+/* ── PrintPreview ── */
 function PrintPreview({ config, onBack }) {
-  const [itemsPerPage, setItemsPerPage] = useState(6)
-
   const now = new Date()
-  const emitido = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
-
-  useEffect(() => {
-    const count = (config.deadlines || []).length
-    if (count <= 3) setItemsPerPage(8)
-    else if (count <= 5) setItemsPerPage(7)
-    else if (count <= 8) setItemsPerPage(6)
-    else setItemsPerPage(5)
-  }, [config])
+  const emitido = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
 
   const { conditions, deadlines, saleType, products, title } = config
   const regionFactor = saleType?.fator ?? 1
-  const totalPages = Math.ceil(products.length / itemsPerPage)
 
   return (
     <>
-      {/* Toolbar de prévia — oculta ao imprimir */}
+      {/* ── Barra de preview (oculta ao imprimir) ── */}
       <div className="preview-bar no-print">
         <div>
           <div style={{ fontWeight: 700, fontSize: 14 }}>📄 Prévia de Impressão</div>
           <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>
             {products.length} produto{products.length !== 1 ? 's' : ''} •{' '}
             {conditions.length} condição{conditions.length !== 1 ? 'ões' : ''} •{' '}
-            {deadlines.length} prazo{deadlines.length !== 1 ? 's' : ''} •{' '}
-            {totalPages} página{totalPages !== 1 ? 's' : ''}
+            {deadlines.length} prazo{deadlines.length !== 1 ? 's' : ''}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'rgba(255,255,255,0.85)' }}>
-            Itens/página:
-            <select
-              value={itemsPerPage}
-              onChange={e => setItemsPerPage(Number(e.target.value))}
-              style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)', color: 'white', padding: '4px 8px', borderRadius: 4, fontSize: 12, cursor: 'pointer' }}
-            >
-              {[4,5,6,7,8,9,10].map(n => <option key={n} value={n} style={{ background: '#2d6a4f' }}>{n}</option>)}
-            </select>
-          </label>
           <button
             onClick={onBack}
-            style={{ background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', color: 'white', padding: '7px 16px', borderRadius: 5, cursor: 'pointer', fontSize: 12 }}
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.25)',
+              color: C.white,
+              padding: '7px 16px',
+              borderRadius: 5,
+              cursor: 'pointer',
+              fontSize: 12,
+            }}
           >
             ← Voltar
           </button>
           <button
             onClick={() => window.print()}
-            style={{ background: 'white', border: 'none', color: '#1b4332', padding: '8px 20px', borderRadius: 5, cursor: 'pointer', fontSize: 13, fontWeight: 700 }}
+            style={{
+              background: C.white,
+              border: 'none',
+              color: C.blueDark,
+              padding: '8px 20px',
+              borderRadius: 5,
+              cursor: 'pointer',
+              fontSize: 13,
+              fontWeight: 700,
+            }}
           >
             🖨 Imprimir / Salvar PDF
           </button>
         </div>
       </div>
 
-      {/* Páginas A4 */}
-      <div className="print-pages">
-        {Array.from({ length: totalPages }, (_, pageIdx) => {
-          const pageProducts = products.slice(pageIdx * itemsPerPage, (pageIdx + 1) * itemsPerPage)
-          const pageNum = pageIdx + 1
-          return (
-            <div key={pageIdx} className="a4-page">
-              {/* Cabeçalho */}
-              <div style={{ marginBottom: 8 }}>
-                <div style={{ textAlign: 'center', marginBottom: 6, paddingBottom: 6, borderBottom: '2px solid #2d6a4f' }}>
-                  <h1 style={{ fontSize: 13, fontWeight: 'bold', color: '#1b4332', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>
-                    {title || 'Tabela de Preços'}
-                  </h1>
-                </div>
-              </div>
+      {/*
+        ── Documento imprimível ──
+        Um único fluxo contínuo. O CSS abaixo garante:
+          • Cabeçalho repete em toda página  →  <thead> com display:table-header-group
+          • Cada produto NÃO quebra no meio  →  break-inside: avoid
+          • Margens A4 definidas via @page
+      */}
+      <style>{`
+        @page {
+          size: A4 portrait;
+          margin: 14mm 12mm 16mm 12mm;
+        }
 
-              {/* Produtos */}
-              <div style={{ flex: 1 }}>
-                {pageProducts.map(product => (
-                  <ProductBlock
-                    key={product.cod}
-                    product={product}
-                    conditions={conditions}
-                    deadlines={deadlines}
-                    regionFactor={regionFactor}
-                  />
-                ))}
-              </div>
+        /* Cabeçalho do documento: só aparece na 1ª página em tela,
+           mas ao imprimir o browser repete thead automaticamente */
+        .print-doc-header {
+          text-align: center;
+          padding-bottom: 8px;
+          border-bottom: 2px solid ${C.bluePrimary};
+          margin-bottom: 10px;
+        }
 
-              {/* Rodapé */}
-              <div className="page-footer">
-                <span>Emitido em {emitido}</span>
-                <span style={{ fontSize: 8, color: '#ccc', fontStyle: 'italic' }}>{saleType?.descri || ''}</span>
-                <span>Página {pageNum} de {totalPages}</span>
-              </div>
-            </div>
-          )
-        })}
+        /* Cada bloco de produto não pode ser quebrado entre páginas */
+        .product-block {
+          break-inside: avoid;
+          page-break-inside: avoid; /* fallback Safari/Edge legados */
+        }
+
+        /* Rodapé fixo na parte inferior de cada página impressa */
+        .print-running-footer {
+          display: none;
+        }
+        @media print {
+          .print-running-footer {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            justify-content: space-between;
+            font-size: 8pt;
+            color: #888;
+            border-top: 1px solid #ddd;
+            padding: 3pt 10pt;
+            background: white;
+          }
+        }
+      `}</style>
+
+      {/* Rodapé que flutua em toda página ao imprimir */}
+      <div className="print-running-footer">
+        <span>Emitido em {emitido}</span>
+        <span style={{ fontStyle: 'italic', color: '#bbb' }}>{saleType?.descri || ''}</span>
+      </div>
+
+      {/* Conteúdo principal */}
+      <div className="print-pages" style={{ paddingBottom: 40 }}>
+        {/* Cabeçalho visível em tela e na 1ª página impressa */}
+        <div className="a4-page" style={{ paddingBottom: 0 }}>
+          <div className="print-doc-header">
+            <h1
+              style={{
+                fontSize: 13,
+                fontWeight: 'bold',
+                color: C.blueDark,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                margin: 0,
+              }}
+            >
+              {title || 'Tabela de Preços'}
+            </h1>
+          </div>
+
+          {/* Todos os produtos em sequência — o browser quebra as páginas */}
+          {products.map((product) => (
+            <ProductBlock
+              key={product.cod}
+              product={product}
+              conditions={conditions}
+              deadlines={deadlines}
+              regionFactor={regionFactor}
+            />
+          ))}
+        </div>
       </div>
     </>
   )
 }
-
 /* ══════════════════════════════════════
    PÁGINA PRINCIPAL
 ══════════════════════════════════════ */
@@ -456,7 +519,6 @@ export default function TabelaPrecos() {
     }
   }
 
-  /* ── Abrir prévia na mesma página ── */
   function handlePrint() {
     setPrintError('')
     const errors = []
@@ -509,281 +571,23 @@ export default function TabelaPrecos() {
 
   return (
     <>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-          font-family: Arial, Helvetica, sans-serif;
-          font-size: 12px;
-          color: #1a1a1a;
-        }
-
-        /* ════════════════ CONFIG VIEW ════════════════ */
-        .config-root {
-          min-height: 100vh;
-          padding: 0 0 60px;
-          background: #f0f4f1;
-        }
-
-        .section-card {
-          background: white;
-          border-radius: 8px;
-          border: 1px solid #dce8de;
-          overflow: hidden;
-          box-shadow: 0 1px 4px rgba(27,67,50,0.07);
-        }
-        .section-title {
-          background: linear-gradient(90deg, #7d9de4, #486de9);
-          color: white;
-          padding: 10px 14px;
-          font-size: 12px;
-          font-weight: 700;
-          letter-spacing: 0.03em;
-          text-transform: uppercase;
-        }
-        .table-header {
-          background: #e8f2ea;
-          color: #619ce9;
-          font-weight: 700;
-          font-size: 11px;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-        .scrollable-list {
-          max-height: 260px;
-          overflow-y: auto;
-        }
-        .checkbox-item {
-          padding: 7px 12px;
-          cursor: pointer;
-          transition: background 0.1s;
-          border-bottom: 1px solid #f0f5f1;
-          align-items: center;
-        }
-        .checkbox-item:hover { background: #e8f5eb !important; }
-        .checkbox-item.selected { font-weight: 600; }
-        .empty-state {
-          padding: 32px 16px;
-          text-align: center;
-          color: #9eadc3;
-          font-size: 12px;
-        }
-        .input-field {
-          border: 1px solid #c8d3de;
-          border-radius: 5px;
-          padding: 7px 10px;
-          font-size: 12px;
-          outline: none;
-          font-family: inherit;
-          transition: border-color 0.15s;
-        }
-        .input-field:focus { border-color: #1131e7; box-shadow: 0 0 0 2px rgba(31, 14, 177, 0.12); }
-        .select-field {
-          border: 1px solid #92b0f1;
-          border-radius: 5px;
-          padding: 7px 10px;
-          font-size: 12px;
-          outline: none;
-          font-family: inherit;
-          background: white;
-          cursor: pointer;
-        }
-        .select-field:focus { border-color: #669ef1; box-shadow: 0 0 0 2px rgba(67, 36, 240, 0.12); }
-        .btn-primary {
-          background: linear-gradient(135deg, #387ee7, #1949e9);
-          border: none;
-          color: white;
-          padding: 7px 14px;
-          border-radius: 5px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          font-family: inherit;
-          transition: opacity 0.15s;
-          white-space: nowrap;
-        }
-        .btn-primary:hover { opacity: 0.9; }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-remove {
-          background: none;
-          border: 1px solid #e0b4b4;
-          color: #cc4444;
-          width: 22px;
-          height: 22px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 14px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          line-height: 1;
-          font-family: inherit;
-          transition: all 0.15s;
-        }
-        .btn-remove:hover { background: #cc4444; color: white; }
-        .tag-badge {
-          background: #d8f3dc;
-          color: #335bdf;
-          padding: 2px 8px;
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-        }
-        .product-table {
-          width: 100%;
-          border-collapse: collapse;
-          min-width: 520px;
-        }
-        .product-grid-container {
-          overflow-x: auto;
-        }
-        .drag-row { transition: background 0.1s; }
-        .drag-row:hover td { background: #edf7ef !important; }
-        .drag-handle { color: #5059df; font-size: 14px; cursor: grab; }
-        .loading-spinner {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          border: 2px solid #82a5f1;
-          border-top-color: #1131e7;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg) } }
-
-        /* ════════════════ PREVIEW VIEW ════════════════ */
-        .preview-root {
-          background: #899bec;
-          min-height: 100vh;
-        }
-
-        .preview-bar {
-          background: linear-gradient(135deg, #387ee7, #1949e9);
-          color: white;
-          padding: 10px 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          position: sticky;
-          top: 0;
-          z-index: 200;
-          box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-
-        .print-pages {
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .a4-page {
-          width: 794px;
-          min-height: 1123px;
-          background: white;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.18);
-          padding: 10mm 11mm 14mm 11mm;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-        }
-
-        /* produto */
-        .product-block {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 7px;
-          padding-bottom: 7px;
-          border-bottom: 1px solid #dce8de;
-          page-break-inside: avoid;
-        }
-        .product-block:last-child { border-bottom: none; margin-bottom: 0; }
-        .prod-left {
-          width: 90px;
-          flex-shrink: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 3px;
-        }
-        .prod-img {
-          width: 82px;
-          height: 82px;
-          object-fit: contain;
-          border: 1px solid #e0e8e2;
-          border-radius: 3px;
-        }
-        .prod-img-placeholder {
-          width: 82px;
-          height: 82px;
-          background: #f5f7f5;
-          border: 1px solid #dce8de;
-          border-radius: 3px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          color: #aaa;
-          font-size: 9px;
-          gap: 3px;
-        }
-        .prod-code { font-size: 8.5px; color: #777; text-align: center; word-break: break-all; line-height: 1.2; }
-        .prod-name { font-size: 9px; font-weight: bold; text-align: center; color: #1b4332; line-height: 1.3; text-transform: uppercase; }
-        .prod-right { flex: 1; overflow: hidden; }
-
-        .price-table { width: 100%; border-collapse: collapse; font-size: 10px; }
-        .th-cond { background: #3d5add; color: white; padding: 4px 7px; text-align: center; font-size: 9.5px; font-weight: 700; border-left: 1px solid rgba(255,255,255,0.2); letter-spacing: 0.02em; }
-        .td-label { padding: 3.5px 7px; font-size: 9px; font-weight: 600; color: #2d2d2d; background: #f0f9f3 !important; border: 1px solid #dce8de; white-space: nowrap; }
-        .td-price { padding: 3.5px 7px; text-align: center; font-size: 10px; border: 1px solid #dce8de; font-variant-numeric: tabular-nums; font-weight: 600; }
-        .tr-even .td-price { background: #f6fbf7; }
-        .tr-odd  .td-price { background: #ffffff; }
-
-        .page-footer {
-          position: absolute;
-          bottom: 8mm;
-          left: 11mm;
-          right: 11mm;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 8.5px;
-          color: #bbb;
-          border-top: 1px solid #e8e8e8;
-          padding-top: 4px;
-        }
-
-        /* ════════════════ PRINT ════════════════ */
-        @media print {
-          .no-print { display: none !important; }
-          .config-root { display: none !important; }
-          .preview-root { background: white; }
-          .print-pages { padding: 0; gap: 0; }
-          .a4-page {
-            width: 100%;
-            min-height: auto;
-            box-shadow: none;
-            padding: 8mm 10mm 18mm 10mm;
-            page-break-after: always;
-          }
-          .product-block { page-break-inside: avoid; }
-        }
-      `}</style>
 
       {/* ══ CONFIG VIEW ══ */}
       {view === 'config' && (
         <div className="config-root">
-     
-          <header style={{ background: 'linear-gradient(135deg, #6284f3 0%, #5951d1 60%, #4c1ccf 100%)', padding: '14px 24px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 12px rgba(27,67,50,0.25)' }}>
-            {/* <div style={{ width: 36, height: 36, background: 'rgba(255,255,255,0.15)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>📋</div> */}
+
+          <header style={{
+            background: `linear-gradient(135deg, ${C.bluePrimary} 0%, ${C.blueMid} 50%, ${C.blueDark} 100%)`,
+            padding: '14px 24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            boxShadow: '0 2px 12px rgba(0,50,100,0.25)'
+          }}>
             <div>
-              <h1 style={{ color: 'white', fontSize: 16, fontWeight: 700, margin: 0 }}>Impressão de Tabela de Preços</h1>
-              {/* <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 11, margin: 0 }}>Configuração de condições, prazos e produtos</p> */}
+              <h1 style={{ color: C.white, fontSize: 16, fontWeight: 700, margin: 0 }}>Impressão de Tabela de Preços</h1>
             </div>
-           </header>
+          </header>
 
           <div style={{ maxWidth: 1400, margin: '0 auto', padding: '18px 18px 0' }}>
             {/* Condições + Prazos */}
@@ -796,9 +600,9 @@ export default function TabelaPrecos() {
             <div className="section-card" style={{ marginBottom: 16 }}>
               <div className="section-title">Tipo de Venda</div>
               <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#2a1fc2', minWidth: 90 }}>Tipo de Venda</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.blueDark, minWidth: 90 }}>Tipo de Venda</label>
                 {loadingSale ? <span className="loading-spinner" /> : errorSale ? (
-                  <span style={{ color: '#cc3300', fontSize: 12 }}>⚠ {errorSale}</span>
+                  <span style={{ color: C.danger, fontSize: 12 }}>⚠ {errorSale}</span>
                 ) : (
                   <select className="select-field" style={{ minWidth: 320 }} value={selectedSaleType} onChange={e => setSelectedSaleType(e.target.value)}>
                     <option value="">— Selecione um tipo de venda —</option>
@@ -824,7 +628,7 @@ export default function TabelaPrecos() {
                   </span>
                   <button
                     onClick={handlePrint}
-                    style={{ background: 'white', border: 'none', color: '#1f1950', padding: '5px 14px', borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
+                    style={{ background: C.white, border: 'none', color: C.blueDark, padding: '5px 14px', borderRadius: 4, fontSize: 11, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}
                   >
                     🖨 Imprimir PDF
                   </button>
@@ -832,13 +636,13 @@ export default function TabelaPrecos() {
               </div>
 
               {printError && (
-                <div style={{ padding: '8px 14px', background: '#fff5f5', borderBottom: '1px solid #ffd0d0', color: '#cc3300', fontSize: 11, fontWeight: 500 }}>
+                <div style={{ padding: '8px 14px', background: '#fff5f5', borderBottom: '1px solid #ffd0d0', color: C.danger, fontSize: 11, fontWeight: 500 }}>
                   ⚠ {printError}
                 </div>
               )}
 
               {/* Busca */}
-              <div style={{ padding: '12px 14px', borderBottom: '1px solid #e8f2ea', display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              <div style={{ padding: '12px 14px', borderBottom: `1px solid ${C.borderLight}`, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-start' }}>
                 <div style={{ display: 'flex', gap: 8, flex: 1, minWidth: 280 }}>
                   <div style={{ position: 'relative', flex: 1, maxWidth: 340 }}>
                     <input
@@ -849,18 +653,15 @@ export default function TabelaPrecos() {
                       onChange={e => { setBarcodeInput(e.target.value); setBarcodeError('') }}
                       onKeyDown={e => e.key === 'Enter' && addByBarcode()}
                     />
-                    <span style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#9ec3a8' }}>🔎</span>
+                    <span style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: C.textMuted }}>🔎</span>
                   </div>
                   <button className="btn-primary" onClick={addByBarcode} disabled={barcodeLoading || !barcodeInput.trim()}>
                     {barcodeLoading ? <span className="loading-spinner" style={{ width: 13, height: 13, borderWidth: 2 }} /> : '+'}
                     Adicionar
                   </button>
                 </div>
-                {/* <button className="btn-primary" style={{ background: 'linear-gradient(135deg, #2421e4, #2421e4)' }} onClick={() => setShowModal(true)}>
-                  🔍 Pesquisar produto
-                </button> */}
                 {barcodeError && (
-                  <div style={{ width: '100%', color: '#cc3300', fontSize: 11, marginTop: 2 }}>⚠ {barcodeError}</div>
+                  <div style={{ width: '100%', color: C.danger, fontSize: 11, marginTop: 2 }}>⚠ {barcodeError}</div>
                 )}
               </div>
 
@@ -869,8 +670,8 @@ export default function TabelaPrecos() {
                 {products.length === 0 ? (
                   <div className="empty-state" style={{ padding: '48px 16px' }}>
                     <div style={{ fontSize: 32, marginBottom: 8 }}>📦</div>
-                    <div style={{ fontWeight: 600, color: '#2d6bdd', marginBottom: 4 }}>Nenhum produto adicionado</div>
-                    <div>Use o campo acima ou clique em "Pesquisar produto" para adicionar</div>
+                    <div style={{ fontWeight: 600, color: C.blueMid, marginBottom: 4 }}>Nenhum produto adicionado</div>
+                    <div>Use o campo acima para adicionar produtos</div>
                   </div>
                 ) : (
                   <table className="product-table">
@@ -893,13 +694,13 @@ export default function TabelaPrecos() {
                           onDragStart={() => handleDragStart(i)}
                           onDragOver={(e) => handleDragOver(e, i)}
                           onDrop={() => handleDrop(i)}
-                          style={{ background: i % 2 === 0 ? '#f6fbf7' : '#ffffff', cursor: 'default' }}
+                          style={{ background: i % 2 === 0 ? C.rowEven : C.white, cursor: 'default' }}
                         >
                           <td style={{ padding: '8px 6px', textAlign: 'center' }}>
                             <span className="drag-handle" title="Arraste para reordenar">⠿</span>
                           </td>
-                          <td style={{ padding: '8px 6px', textAlign: 'center', color: '#aaa', fontSize: 11 }}>{i + 1}</td>
-                          <td style={{ padding: '8px 12px', fontWeight: 600, color: '#2959df' }}>{p.cod}</td>
+                          <td style={{ padding: '8px 6px', textAlign: 'center', color: C.textMuted, fontSize: 11 }}>{i + 1}</td>
+                          <td style={{ padding: '8px 12px', fontWeight: 600, color: C.blueMid }}>{p.cod}</td>
                           <td style={{ padding: '8px 12px', maxWidth: 320 }} title={p.desc}>{p.desc}</td>
                           <td style={{ padding: '8px 12px' }}>
                             {p.tipo && p.tipo !== '-' ? <span className="tag-badge" style={{ fontSize: 10 }}>{p.tipo}</span> : '-'}
@@ -915,7 +716,7 @@ export default function TabelaPrecos() {
               </div>
 
               {products.length > 0 && (
-                <div style={{ padding: '8px 14px', borderTop: '1px solid #e8f2ea', fontSize: 11, color: '#2566f1', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ padding: '8px 14px', borderTop: `1px solid ${C.borderLight}`, fontSize: 11, color: C.blueAccent, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span>⠿</span>
                   Arraste as linhas para reordenar • A lista é salva automaticamente no navegador
                 </div>
@@ -925,27 +726,34 @@ export default function TabelaPrecos() {
 
           {/* Summary bar */}
           {(selectedConds.length > 0 || selectedDeadlines.length > 0 || selectedSaleType || products.length > 0) && (
-            <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'linear-gradient(135deg, #1b1e43, #1b1e43)', padding: '10px 24px', display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center', boxShadow: '0 -2px 12px rgba(0,0,0,0.15)', zIndex: 100 }}>
+            <div style={{
+              position: 'fixed', bottom: 0, left: 0, right: 0,
+              background: C.blueDark,
+              padding: '10px 24px',
+              display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center',
+              boxShadow: '0 -2px 12px rgba(0,0,0,0.2)',
+              zIndex: 100
+            }}>
               <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, fontWeight: 600 }}>SELEÇÃO ATUAL:</span>
               {selectedConds.length > 0 && (
-                <span style={{ color: 'white', fontSize: 11 }}>
-                  <span style={{ color: '#2475f0' }}>Condições:</span> {selectedConds.length} selecionada{selectedConds.length !== 1 ? 's' : ''}
+                <span style={{ color: C.white, fontSize: 11 }}>
+                  <span style={{ color: C.blueAccent }}>Condições:</span> {selectedConds.length} selecionada{selectedConds.length !== 1 ? 's' : ''}
                 </span>
               )}
               {selectedDeadlines.length > 0 && (
-                <span style={{ color: 'white', fontSize: 11 }}>
-                  <span style={{ color: '#2475f0' }}>Prazos:</span> {selectedDeadlines.length} selecionado{selectedDeadlines.length !== 1 ? 's' : ''}
+                <span style={{ color: C.white, fontSize: 11 }}>
+                  <span style={{ color: C.blueAccent }}>Prazos:</span> {selectedDeadlines.length} selecionado{selectedDeadlines.length !== 1 ? 's' : ''}
                 </span>
               )}
               {selectedSaleType && (
-                <span style={{ color: 'white', fontSize: 11 }}>
-                  <span style={{ color: '#2475f0' }}>Tipo Venda:</span>{' '}
+                <span style={{ color: C.white, fontSize: 11 }}>
+                  <span style={{ color: C.blueAccent }}>Tipo Venda:</span>{' '}
                   {trimStr(saleTypes.find(s => trimStr(s.Z01_CODIGO) === selectedSaleType)?.Z01_DESCRI || selectedSaleType)}
                 </span>
               )}
               {products.length > 0 && (
-                <span style={{ color: 'white', fontSize: 11 }}>
-                  <span style={{ color: '#2475f0' }}>Produtos:</span> {products.length}
+                <span style={{ color: C.white, fontSize: 11 }}>
+                  <span style={{ color: C.blueAccent }}>Produtos:</span> {products.length}
                 </span>
               )}
             </div>
