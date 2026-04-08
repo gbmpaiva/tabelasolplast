@@ -1,4 +1,4 @@
-import { totvsQuery } from '../../lib/totvs'
+import { totvsQuery } from '../../app/lib/totvs'
 
 export async function GET() {
   const result = await totvsQuery(
