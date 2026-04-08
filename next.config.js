@@ -3,6 +3,7 @@ const nextConfig = {
   experimental: {
     serverExternalPackages: ['ssh2-sftp-client', 'ssh2'],
   },
+  bundler: 'webpack',
 }
 
 module.exports = nextConfig

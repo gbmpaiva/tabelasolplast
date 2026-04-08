@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'  // ← adicione esta linha
+
 import SftpClient from 'ssh2-sftp-client'
 import { NextResponse } from 'next/server'
 
