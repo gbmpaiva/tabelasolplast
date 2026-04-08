@@ -1,4 +1,4 @@
-import { totvsQuery } from '../../app/lib/totvs'
+import { totvsQuery } from '../../lib/totvs'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)

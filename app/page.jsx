@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { fetchConditions, fetchDeadlines, fetchSaleTypes, fetchProducts } from './lib/totvs-client'
 
 const STORAGE_KEY = 'tabela_precos_products'
 
@@ -133,13 +132,12 @@ function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
   useEffect(() => { inputRef.current?.focus() }, [])
 
   async function search() {
-    if (!query.trim()) return
     setLoading(true)
     setSearched(true)
     try {
-      // Chama o REST Protheus diretamente via totvs-client
-      const result = await fetchProducts(query)
-      setResults(result.success ? result.data : [])
+      const res = await fetch(`/api/products?code=${encodeURIComponent(query)}`)
+      const data = await res.json()
+      setResults(data.notFound || !data.data ? [] : data.data)
     } catch {
       setResults([])
     } finally {
@@ -266,6 +264,7 @@ function ProductBlock({ product, conditions, deadlines, regionFactor }) {
 }
 
 /* ── PrintPreview ── */
+/* ── PrintPreview ── */
 function PrintPreview({ config, onBack }) {
   const now = new Date()
   const emitido = `${now.toLocaleDateString('pt-BR')} às ${now.toLocaleTimeString('pt-BR', {
@@ -278,6 +277,7 @@ function PrintPreview({ config, onBack }) {
 
   return (
     <>
+      {/* ── Barra de preview (oculta ao imprimir) ── */}
       <div className="preview-bar no-print">
         <div>
           <div style={{ fontWeight: 700, fontSize: 14 }}>📄 Prévia de Impressão</div>
@@ -320,21 +320,35 @@ function PrintPreview({ config, onBack }) {
         </div>
       </div>
 
+      {/*
+        ── Documento imprimível ──
+        Um único fluxo contínuo. O CSS abaixo garante:
+          • Cabeçalho repete em toda página  →  <thead> com display:table-header-group
+          • Cada produto NÃO quebra no meio  →  break-inside: avoid
+          • Margens A4 definidas via @page
+      */}
       <style>{`
         @page {
           size: A4 portrait;
           margin: 14mm 12mm 16mm 12mm;
         }
+
+        /* Cabeçalho do documento: só aparece na 1ª página em tela,
+           mas ao imprimir o browser repete thead automaticamente */
         .print-doc-header {
           text-align: center;
           padding-bottom: 8px;
           border-bottom: 2px solid ${C.bluePrimary};
           margin-bottom: 10px;
         }
+
+        /* Cada bloco de produto não pode ser quebrado entre páginas */
         .product-block {
           break-inside: avoid;
-          page-break-inside: avoid;
+          page-break-inside: avoid; /* fallback Safari/Edge legados */
         }
+
+        /* Rodapé fixo na parte inferior de cada página impressa */
         .print-running-footer {
           display: none;
         }
@@ -355,12 +369,15 @@ function PrintPreview({ config, onBack }) {
         }
       `}</style>
 
+      {/* Rodapé que flutua em toda página ao imprimir */}
       <div className="print-running-footer">
         <span>Emitido em {emitido}</span>
         <span style={{ fontStyle: 'italic', color: '#bbb' }}>{saleType?.descri || ''}</span>
       </div>
 
+      {/* Conteúdo principal */}
       <div className="print-pages" style={{ paddingBottom: 40 }}>
+        {/* Cabeçalho visível em tela e na 1ª página impressa */}
         <div className="a4-page" style={{ paddingBottom: 0 }}>
           <div className="print-doc-header">
             <h1
@@ -376,6 +393,8 @@ function PrintPreview({ config, onBack }) {
               {title || 'Tabela de Preços'}
             </h1>
           </div>
+
+          {/* Todos os produtos em sequência — o browser quebra as páginas */}
           {products.map((product) => (
             <ProductBlock
               key={product.cod}
@@ -390,56 +409,57 @@ function PrintPreview({ config, onBack }) {
     </>
   )
 }
-
 /* ══════════════════════════════════════
    PÁGINA PRINCIPAL
 ══════════════════════════════════════ */
 export default function TabelaPrecos() {
   /* --- dados do servidor --- */
-  const [conditions, setConditions]     = useState([])
-  const [deadlines, setDeadlines]       = useState([])
-  const [saleTypes, setSaleTypes]       = useState([])
-  const [loadingCond, setLoadingCond]   = useState(true)
+  const [conditions, setConditions] = useState([])
+  const [deadlines, setDeadlines] = useState([])
+  const [saleTypes, setSaleTypes] = useState([])
+  const [loadingCond, setLoadingCond] = useState(true)
   const [loadingDeadl, setLoadingDeadl] = useState(true)
-  const [loadingSale, setLoadingSale]   = useState(true)
-  const [errorCond, setErrorCond]       = useState('')
-  const [errorDeadl, setErrorDeadl]     = useState('')
-  const [errorSale, setErrorSale]       = useState('')
+  const [loadingSale, setLoadingSale] = useState(true)
+  const [errorCond, setErrorCond] = useState('')
+  const [errorDeadl, setErrorDeadl] = useState('')
+  const [errorSale, setErrorSale] = useState('')
 
   /* --- seleções --- */
-  const [selectedConds, setSelectedConds]         = useState([])
+  const [selectedConds, setSelectedConds] = useState([])
   const [selectedDeadlines, setSelectedDeadlines] = useState([])
-  const [selectedSaleType, setSelectedSaleType]   = useState('')
+  const [selectedSaleType, setSelectedSaleType] = useState('')
 
   /* --- produtos --- */
-  const [products, setProducts]           = useState([])
-  const [showModal, setShowModal]         = useState(false)
-  const [savedBadge, setSavedBadge]       = useState(false)
-  const [barcodeInput, setBarcodeInput]   = useState('')
+  const [products, setProducts] = useState([])
+  const [showModal, setShowModal] = useState(false)
+  const [savedBadge, setSavedBadge] = useState(false)
+  const [barcodeInput, setBarcodeInput] = useState('')
   const [barcodeLoading, setBarcodeLoading] = useState(false)
-  const [barcodeError, setBarcodeError]   = useState('')
+  const [barcodeError, setBarcodeError] = useState('')
 
   /* --- controle de view --- */
-  const [view, setView]             = useState('config')
+  const [view, setView] = useState('config') // 'config' | 'preview'
   const [printConfig, setPrintConfig] = useState(null)
   const [printError, setPrintError] = useState('')
 
-  const dragIdx     = useRef(null)
+  const dragIdx = useRef(null)
   const dragOverIdx = useRef(null)
 
-  // ── Carrega dados do Protheus REST via totvs-client ──
   useEffect(() => {
-    fetchConditions()
+    fetch('/api/conditions')
+      .then(r => r.json())
       .then(d => { setConditions(d.data || []); if (!d.success) setErrorCond(d.error || 'Erro') })
       .catch(e => setErrorCond(e.message))
       .finally(() => setLoadingCond(false))
 
-    fetchDeadlines()
+    fetch('/api/deadlines')
+      .then(r => r.json())
       .then(d => { setDeadlines(d.data || []); if (!d.success) setErrorDeadl(d.error || 'Erro') })
       .catch(e => setErrorDeadl(e.message))
       .finally(() => setLoadingDeadl(false))
 
-    fetchSaleTypes()
+    fetch('/api/sale-types')
+      .then(r => r.json())
       .then(d => { setSaleTypes(d.data || []); if (!d.success) setErrorSale(d.error || 'Erro') })
       .catch(e => setErrorSale(e.message))
       .finally(() => setLoadingSale(false))
@@ -484,12 +504,12 @@ export default function TabelaPrecos() {
     setBarcodeLoading(true)
     setBarcodeError('')
     try {
-      // Chama o REST Protheus diretamente via totvs-client
-      const result = await fetchProducts(code)
-      if (!result.success || !result.data || result.data.length === 0) {
+      const res = await fetch(`/api/products?code=${encodeURIComponent(code)}`)
+      const data = await res.json()
+      if (data.notFound || !data.data || data.data.length === 0) {
         setBarcodeError('Produto não encontrado')
       } else {
-        addProduct(result.data[0])
+        addProduct(data.data[0])
         setBarcodeInput('')
       }
     } catch {
@@ -551,6 +571,7 @@ export default function TabelaPrecos() {
 
   return (
     <>
+
       {/* ══ CONFIG VIEW ══ */}
       {view === 'config' && (
         <div className="config-root">
@@ -639,9 +660,6 @@ export default function TabelaPrecos() {
                     Adicionar
                   </button>
                 </div>
-                <button className="btn-primary" style={{ background: C.blueMid }} onClick={() => setShowModal(true)}>
-                  🔍 Pesquisar
-                </button>
                 {barcodeError && (
                   <div style={{ width: '100%', color: C.danger, fontSize: 11, marginTop: 2 }}>⚠ {barcodeError}</div>
                 )}
