@@ -46,7 +46,3 @@ tabela-precos/
 - ✅ **Barra de resumo** — mostra as seleções ativas na parte inferior
 - ✅ **Proxy de API** — todas as chamadas passam pelo servidor Next.js (evita CORS)
 
-## Autenticação
-
-As credenciais `admin:6JGtD3QE` estão configuradas nos arquivos de rota da API (`/app/api/*/route.js`).
-Para alterar, edite a constante `AUTH` nesses arquivos.
