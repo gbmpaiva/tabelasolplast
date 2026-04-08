@@ -237,6 +237,7 @@ function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
 function ProductBlock({ product, conditions, deadlines, regionFactor }) {
   const [imgError, setImgError] = useState(false)
   const cod = (product.cod || '').trim()
+  const SFTP_PROXY_BASE = 'https://tabelasolplast.vercel.app/api/image'
 
   return (
     <div className="product-block">
@@ -249,7 +250,7 @@ function ProductBlock({ product, conditions, deadlines, regionFactor }) {
         ) : (
           <img
             className="prod-img"
-            src={`/images/${cod}.jpg`}
+            src={`${SFTP_PROXY_BASE}?cod=${cod}`}
             alt={product.desc}
             onError={() => setImgError(true)}
           />
