@@ -55,10 +55,32 @@ function SavedBadge({ saved }) {
 }
 
 /* ── CheckboxList ── */
-function CheckboxList({ title, items, selected, onToggle, loading, error, keyField, labelField, extraField, extraLabel }) {
+function CheckboxList({ title, items, selected, onToggle, onSelectAll, loading, error, keyField, labelField, extraField, extraLabel }) {
+  const allSelected = items.length > 0 && items.every(item => selected.includes(trimStr(item[keyField])))
+
   return (
     <div className="section-card flex-1 min-w-0">
-      <div className="section-title">{title}</div>
+      <div className="section-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{title}</span>
+        {!loading && !error && items.length > 0 && (
+          <button
+            onClick={() => onSelectAll(allSelected ? [] : items.map(i => trimStr(i[keyField])))}
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              color: '#fff',
+              borderRadius: 4,
+              padding: '3px 10px',
+              fontSize: 11,
+              cursor: 'pointer',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {allSelected ? '☐ Desmarcar todos' : '☑ Marcar todos'}
+          </button>
+        )}
+      </div>
       {loading && (
         <div style={{ padding: '20px', textAlign: 'center' }}>
           <span className="loading-spinner" />
@@ -592,8 +614,31 @@ export default function TabelaPrecos() {
           <div style={{ maxWidth: 1400, margin: '0 auto', padding: '18px 18px 0' }}>
             {/* Condições + Prazos */}
             <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
-              <CheckboxList title="Condição de Pagamento" items={conditions} selected={selectedConds} onToggle={toggleCond} loading={loadingCond} error={errorCond} keyField="Z02_CODIGO" labelField="Z02_DESCRI" extraField="Z02_FATOR" extraLabel="Multiplicador" />
-              <CheckboxList title="Prazo de Pagamento" items={deadlines} selected={selectedDeadlines} onToggle={toggleDeadline} loading={loadingDeadl} error={errorDeadl} keyField="E4_CODIGO" labelField="E4_DESCRI" extraField="E4_XFATOR" extraLabel="Fator" />
+              <CheckboxList
+  title="Condição de Pagamento"
+  items={conditions}
+  selected={selectedConds}
+  onToggle={toggleCond}
+  onSelectAll={setSelectedConds}  
+  loading={loadingCond}
+  error={errorCond}
+  keyField="Z02_CODIGO"
+  labelField="Z02_DESCRI"
+  extraField="Z02_FATOR"
+  extraLabel="Multiplicador"
+/>
+<CheckboxList
+  title="Prazo de Pagamento"
+  items={deadlines}
+  selected={selectedDeadlines}
+  onToggle={toggleDeadline}
+  onSelectAll={setSelectedDeadlines}  
+  error={errorDeadl}
+  keyField="E4_CODIGO"
+  labelField="E4_DESCRI"
+  extraField="E4_XFATOR"
+  extraLabel="Fator"
+/>
             </div>
 
             {/* Tipo de Venda */}
