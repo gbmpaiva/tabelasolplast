@@ -9,7 +9,7 @@ const SFTP_CONFIG = {
   username: process.env.SFTP_USER,
   password: process.env.SFTP_PASS,
 }
-const SFTP_BASE_PATH = '/dev/imgsolplast'
+const SFTP_BASE_PATH = '/dev/imgsolplast/'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
