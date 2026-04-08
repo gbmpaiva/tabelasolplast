@@ -30,10 +30,8 @@ export async function GET(request) {
         'Cache-Control': 'public, max-age=3600',
       },
     })
-  } catch (err) {
-    console.error('Erro SFTP:', err.message)
-    return new NextResponse('Erro ao buscar imagem', { status: 500 })
-  } finally {
-    await sftp.end()
-  }
+} catch (err) {
+  console.error('Erro SFTP:', err.message)
+  return new NextResponse(`Erro: ${err.message}`, { status: 500 })
+}
 }
