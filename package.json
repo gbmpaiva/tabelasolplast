@@ -10,7 +10,8 @@
   "dependencies": {
     "next": "^16.1.6",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "ssh2-sftp-client": "^12.1.1"
   },
   "devDependencies": {
     "@types/node": "^20",

@@ -250,7 +250,7 @@ function ProductBlock({ product, conditions, deadlines, regionFactor }) {
         ) : (
           <img
             className="prod-img"
-            src={`${SFTP_PROXY_BASE}?cod=${cod}`}
+            src={`/api/image?cod=${cod}`}
             alt={product.desc}
             onError={() => setImgError(true)}
           />
