@@ -144,95 +144,274 @@ function CheckboxList({ title, items, selected, onToggle, onSelectAll, loading, 
 }
 
 /* ── ProductSearchModal ── */
-function ProductSearchModal({ onAdd, onClose, alreadyAdded }) {
-  const [query, setQuery] = useState('')
+const PAGE_SIZE = 20
+ 
+function ProductSearchModal({ onAdd, onRemove, onClose, alreadyAdded }) {
+  const [code,    setCode]    = useState('')
+  const [desc,    setDesc]    = useState('')
+  const [tipo,    setTipo]    = useState('')
+  const [tipos,   setTipos]   = useState([])
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
+  const [loadingTipos, setLoadingTipos] = useState(true)
   const [searched, setSearched] = useState(false)
-  const inputRef = useRef(null)
-
-  useEffect(() => { inputRef.current?.focus() }, [])
-
-  async function search() {
+ 
+  // pagination
+  const [page,       setPage]       = useState(1)
+  const [total,      setTotal]      = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+ 
+  // keep last query params so page-change can re-fetch without re-reading state
+  const lastQuery = useRef(null)
+  const descRef   = useRef(null)
+ 
+  /* fetch distinct tipos once on mount */
+  useEffect(() => {
+    fetch('/api/products?tipos=1')
+      .then(r => r.json())
+      .then(d => setTipos((d.data || []).map(x => (x.B1_TIPO || '').trim()).filter(Boolean)))
+      .catch(() => {})
+      .finally(() => setLoadingTipos(false))
+    descRef.current?.focus()
+  }, [])
+ 
+  async function fetchPage(targetPage, query) {
     setLoading(true)
-    setSearched(true)
     try {
-      const res = await fetch(`/api/products?code=${encodeURIComponent(query)}`)
+      const p = new URLSearchParams(query)
+      p.set('page', targetPage)
+      p.set('pageSize', PAGE_SIZE)
+      const res  = await fetch(`/api/products?${p.toString()}`)
       const data = await res.json()
       setResults(data.notFound || !data.data ? [] : data.data)
+      setTotal(data.total ?? 0)
+      setTotalPages(data.totalPages ?? 0)
+      setPage(targetPage)
     } catch {
       setResults([])
+      setTotal(0)
+      setTotalPages(0)
     } finally {
       setLoading(false)
     }
   }
-
+ 
+  async function search() {
+    const query = { desc: desc.trim(), tipo }
+    if (code.trim()) query.code = code.trim()
+    lastQuery.current = query
+    setSearched(true)
+    await fetchPage(1, query)
+  }
+ 
+  function goToPage(p) {
+    if (!lastQuery.current) return
+    fetchPage(p, lastQuery.current)
+    // scroll result list to top
+    document.getElementById('modal-results-list')?.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+ 
   function handleKey(e) {
     if (e.key === 'Enter') search()
     if (e.key === 'Escape') onClose()
   }
-
+ 
+  /* ── pagination bar ── */
+  function Pagination() {
+    if (totalPages <= 1) return null
+    const pages = buildPageRange(page, totalPages)
+    return (
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 16px', borderTop: `1px solid ${C.borderLight}`,
+        background: C.bgPage, flexShrink: 0, gap: 8, flexWrap: 'wrap',
+      }}>
+        <span style={{ fontSize: 11, color: C.textMuted }}>
+          {total} produto{total !== 1 ? 's' : ''} •{' '}
+          página {page} de {totalPages}
+        </span>
+        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+          <PageBtn label="«" onClick={() => goToPage(1)}          disabled={page === 1} />
+          <PageBtn label="‹" onClick={() => goToPage(page - 1)}   disabled={page === 1} />
+          {pages.map((p, i) =>
+            p === '…'
+              ? <span key={`ellipsis-${i}`} style={{ padding: '0 4px', color: C.textMuted, fontSize: 12 }}>…</span>
+              : <PageBtn key={p} label={p} onClick={() => goToPage(p)} active={p === page} />
+          )}
+          <PageBtn label="›" onClick={() => goToPage(page + 1)}   disabled={page === totalPages} />
+          <PageBtn label="»" onClick={() => goToPage(totalPages)} disabled={page === totalPages} />
+        </div>
+      </div>
+    )
+  }
+ 
   return (
     <div
       style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div style={{ background: C.white, borderRadius: 10, width: '92%', maxWidth: 820, boxShadow: '0 8px 40px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
-        <div style={{ background: `linear-gradient(135deg, ${C.blueDark}, ${C.blueMid})`, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{
+        background: C.white, borderRadius: 10, width: '94%', maxWidth: 860,
+        boxShadow: '0 8px 40px rgba(0,0,0,0.2)', overflow: 'hidden',
+        display: 'flex', flexDirection: 'column', maxHeight: '90vh',
+      }}>
+ 
+        {/* header */}
+        <div style={{ background: `linear-gradient(135deg, ${C.blueDark}, ${C.blueMid})`, padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <span style={{ color: C.white, fontWeight: 700, fontSize: 14 }}>🔍 Pesquisar Produto</span>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: C.white, borderRadius: 5, padding: '4px 10px', cursor: 'pointer', fontSize: 13 }}>✕</button>
         </div>
-        <div style={{ padding: '14px 18px' }}>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input ref={inputRef} className="input-field" style={{ flex: 1 }} placeholder="Código, descrição ou código de barras..." value={query} onChange={e => setQuery(e.target.value)} onKeyDown={handleKey} />
-            <button className="btn-primary" onClick={search} disabled={loading}>
-              {loading ? <span className="loading-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /> : '🔍'}
+ 
+        {/* filters */}
+        <div style={{ padding: '14px 18px', borderBottom: `1px solid ${C.borderLight}`, flexShrink: 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: 10, alignItems: 'end' }}>
+ 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.blueDark }}>Descrição contém</label>
+              <input ref={descRef} className="input-field" placeholder="Ex: cano, tubo, cola..." value={desc} onChange={e => setDesc(e.target.value)} onKeyDown={handleKey} />
+            </div>
+ 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.blueDark }}>Código / Cód. barras</label>
+              <input className="input-field" placeholder="Código exato ou parcial..." value={code} onChange={e => setCode(e.target.value)} onKeyDown={handleKey} />
+            </div>
+ 
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 600, color: C.blueDark }}>Tipo</label>
+              {loadingTipos
+                ? <span className="loading-spinner" style={{ margin: 8 }} />
+                : (
+                  <select className="select-field" style={{ minWidth: 130 }} value={tipo} onChange={e => setTipo(e.target.value)}>
+                    <option value="">Todos</option>
+                    {tipos.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                )
+              }
+            </div>
+ 
+            <button className="btn-primary" onClick={search} disabled={loading} style={{ height: 36, whiteSpace: 'nowrap' }}>
+              {loading
+                ? <span className="loading-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                : '🔍'}
               Buscar
             </button>
           </div>
         </div>
-        <div style={{ maxHeight: 380, overflow: 'auto', borderTop: `1px solid ${C.borderLight}` }}>
-          {loading && (<div style={{ textAlign: 'center', padding: 32 }}><span className="loading-spinner" /><p style={{ color: C.blueAccent, fontSize: 12, marginTop: 8 }}>Buscando...</p></div>)}
-          {!loading && searched && results.length === 0 && (<div className="empty-state">Nenhum produto encontrado para "<strong>{query}</strong>"</div>)}
-          {!loading && results.length > 0 && (
-            <table className="product-table" style={{ minWidth: 'unset' }}>
-              <thead>
-                <tr className="table-header">
-                  <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Código</th>
-                  <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Descrição</th>
-                  <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Tipo</th>
-                  <th style={{ padding: '9px 12px', width: 70 }}></th>
-                </tr>
-              </thead>
-              <tbody>
-                {results.map((p, i) => {
-                  const cod = trimStr(p.B1_COD)
-                  const added = alreadyAdded.includes(cod)
-                  return (
-                    <tr key={cod} style={{ background: i % 2 === 0 ? C.rowEven : C.white }}>
-                      <td style={{ padding: '7px 12px', fontSize: 12, fontWeight: 600, color: C.blueMid }}>{cod}</td>
-                      <td style={{ padding: '7px 12px', fontSize: 12, maxWidth: 320 }}>{trimStr(p.B1_DESC)}</td>
-                      <td style={{ padding: '7px 12px', fontSize: 12, color: '#666' }}>{trimStr(p.B1_TIPO) || '-'}</td>
-                      <td style={{ padding: '7px 12px', textAlign: 'center' }}>
-                        {added ? (
-                          <span style={{ fontSize: 11, color: '#999' }}>Adicionado</span>
-                        ) : (
-                          <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 11 }} onClick={() => onAdd(p)}>+ Add</button>
-                        )}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+ 
+        {/* results */}
+        <div id="modal-results-list" style={{ flex: 1, overflow: 'auto' }}>
+          {loading && (
+            <div style={{ textAlign: 'center', padding: 40 }}>
+              <span className="loading-spinner" />
+              <p style={{ color: C.blueAccent, fontSize: 12, marginTop: 8 }}>Buscando...</p>
+            </div>
           )}
-          {!searched && (<div className="empty-state" style={{ padding: 40 }}>Digite um código ou descrição e clique em Buscar</div>)}
+ 
+          {!loading && searched && results.length === 0 && (
+            <div className="empty-state">Nenhum produto encontrado para os filtros informados.</div>
+          )}
+ 
+          {!loading && results.length > 0 && (
+            <>
+              <div style={{ padding: '6px 18px', background: C.blueSurface, borderBottom: `1px solid ${C.borderLight}`, fontSize: 11, color: C.blueAccent }}>
+                {total} produto{total !== 1 ? 's' : ''} encontrado{total !== 1 ? 's' : ''} — mostrando {results.length} da página {page}
+              </div>
+              <table className="product-table" style={{ minWidth: 'unset' }}>
+                <thead>
+                  <tr className="table-header">
+                    <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Código</th>
+                    <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Descrição</th>
+                    <th style={{ padding: '9px 12px', textAlign: 'left', fontSize: 11 }}>Tipo</th>
+                    <th style={{ padding: '9px 12px', width: 80 }}></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((p, i) => {
+                    const cod   = trimStr(p.B1_COD)
+                    const added = alreadyAdded.includes(cod)
+                    return (
+                      <tr key={cod} style={{ background: i % 2 === 0 ? C.rowEven : C.white }}>
+                        <td style={{ padding: '7px 12px', fontSize: 12, fontWeight: 600, color: C.blueMid, whiteSpace: 'nowrap' }}>{cod}</td>
+                        <td style={{ padding: '7px 12px', fontSize: 12, maxWidth: 340 }} title={trimStr(p.B1_DESC)}>{trimStr(p.B1_DESC)}</td>
+                        <td style={{ padding: '7px 12px', fontSize: 11 }}>
+                          {trimStr(p.B1_TIPO)
+                            ? <span className="tag-badge" style={{ fontSize: 10 }}>{trimStr(p.B1_TIPO)}</span>
+                            : <span style={{ color: C.textMuted }}>—</span>}
+                        </td>
+                        <td style={{ padding: '7px 12px', textAlign: 'center' }}>
+                          {added ? (
+                            <button
+                              onClick={() => onRemove(cod)}
+                              style={{ padding: '4px 10px', fontSize: 11, fontWeight: 700, background: '#fff0f0', border: '1px solid #ffb3b3', color: C.danger, borderRadius: 4, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                            >
+                              − Retirar
+                            </button>
+                          ) : (
+                            <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 11 }} onClick={() => onAdd(p)}>+ Add</button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </>
+          )}
+ 
+          {!searched && (
+            <div className="empty-state" style={{ padding: 48 }}>
+              Use os filtros acima e clique em <strong>Buscar</strong>
+            </div>
+          )}
         </div>
+ 
+        {/* pagination */}
+        {!loading && searched && <Pagination />}
       </div>
     </div>
   )
 }
-
+ 
+/* ── helpers ──────────────────────────────────────────────── */
+ 
+function PageBtn({ label, onClick, disabled, active }) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        minWidth: 30, height: 28, padding: '0 6px',
+        border: `1px solid ${active ? C.bluePrimary : C.blueBorder}`,
+        background: active ? C.bluePrimary : C.white,
+        color: active ? C.white : disabled ? C.textMuted : C.blueDark,
+        borderRadius: 4, fontSize: 12, cursor: disabled ? 'default' : 'pointer',
+        fontWeight: active ? 700 : 400,
+        opacity: disabled ? 0.45 : 1,
+      }}
+    >
+      {label}
+    </button>
+  )
+}
+ 
+/** Returns an array like [1, '…', 4, 5, 6, '…', 12] */
+function buildPageRange(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+  const pages = new Set([1, total, current])
+  for (let d = -2; d <= 2; d++) {
+    const p = current + d
+    if (p > 1 && p < total) pages.add(p)
+  }
+  const sorted = [...pages].sort((a, b) => a - b)
+  const result = []
+  let prev = 0
+  for (const p of sorted) {
+    if (p - prev > 1) result.push('…')
+    result.push(p)
+    prev = p
+  }
+  return result
+}
 /* ── ProductBlock (prévia) ── */
 function ProductBlock({ product, conditions, deadlines, regionFactor }) {
   const [imgError, setImgError] = useState(false)
@@ -705,6 +884,10 @@ export default function TabelaPrecos() {
                     {barcodeLoading ? <span className="loading-spinner" style={{ width: 13, height: 13, borderWidth: 2 }} /> : '+'}
                     Adicionar
                   </button>
+                    <button className="btn-primary"     onClick={() => setShowModal(true)} >
+                    {barcodeLoading ? <span className="loading-spinner" style={{ width: 13, height: 13, borderWidth: 2 }} /> : '🔍'}
+                    Procurar
+                  </button>
                 </div>
                 {barcodeError && (
                   <div style={{ width: '100%', color: C.danger, fontSize: 11, marginTop: 2 }}>⚠ {barcodeError}</div>
@@ -817,9 +1000,10 @@ export default function TabelaPrecos() {
       {/* Modal */}
       {showModal && (
         <ProductSearchModal
-          onAdd={(p) => addProduct(p)}
-          onClose={() => setShowModal(false)}
-          alreadyAdded={alreadyAddedCods}
+    onAdd={(p) => addProduct(p)}
+    onRemove={(cod) => removeProduct(cod)} 
+    onClose={() => setShowModal(false)}
+    alreadyAdded={alreadyAddedCods}
         />
       )}
     </>
